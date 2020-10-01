@@ -3,15 +3,19 @@
 #include <wiringPi.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 #define BUTTON 0 // 17
 #define BUTTON2 2 // 27
 
-void play_C() {
-	system("mgr321 sound/Piano_C4_30.mp3");
+pid_t id = 0;
+
+void* play_C() {
+	system("mpg321 sound/Piano_C4_30.mp3");
+	id = pthread_self();
 }
 
-void play_D() {
-	system("mgr321 sound/Piano_C4_30.mp3");
+void* play_D() {
+	system("mpg321 sound/Piano_C4_30.mp3");
 }
 	
 int main(void)
@@ -36,7 +40,7 @@ int main(void)
 				}
 			} else {
 				if(flag == 0) {
-					pthread_exit(&t1);
+					kill(id, 0);
 					flag = -1;
 				}
 			}
