@@ -80,7 +80,8 @@ void set_gpio_output(void* gpio_ctr, int gpio_nr){
 }
 
 int main(){
-
+	
+	int red=1, green=0, blue=0;
 	int fdmem = open("/dev/mem", O_RDWR);
 	if(fdmem < 0 ) {
 		printf("Error opening /dev/mem");
@@ -92,27 +93,63 @@ int main(){
 		printf("mmap error ");
 		return -1;
 	}
+	
+	while(1){
+    	set_gpio_output(gpio_ctr, 13);
+    	set_gpio_output(gpio_ctr, 19);
+    	set_gpio_output(gpio_ctr, 26);
 
-    set_gpio_output(gpio_ctr, 13);
-    set_gpio_output(gpio_ctr, 19);
-    set_gpio_output(gpio_ctr, 26);
+    	set_gpio_input(gpio_ctr, 4);
+    	set_gpio_pullup(gpio_ctr, 4);
 
-    set_gpio_input(gpio_ctr, 4);
-    set_gpio_pullup(gpio_ctr, 4);
+    	int gpio_4_value;
+    	get_gpio_input_value(gpio_ctr, 4, &gpio_4_value);
 
-    int gpio_4_value;
-    get_gpio_input_value(gpio_ctr, 4, &gpio_4_value);
-
-    if(gpio_4_value){
-        set_gpio_output_value(gpio_ctr, 13, 1);
-        set_gpio_output_value(gpio_ctr, 19, 0);
-        set_gpio_output_value(gpio_ctr, 26, 0);
-    }
-    else{
-        set_gpio_output_value(gpio_ctr, 13, 0);
-        set_gpio_output_value(gpio_ctr, 19, 0);
-        set_gpio_output_value(gpio_ctr, 26, 1);
-    }
+    	if(gpio_4_value){
+			if(red){
+        		set_gpio_output_value(gpio_ctr, 13, 0);
+        		set_gpio_output_value(gpio_ctr, 19, 0);
+        		set_gpio_output_value(gpio_ctr, 26, 1);
+			}
+			else if(blue){
+				set_gpio_output_value(gpio_ctr, 13, 1);
+				set_gpio_output_value(gpio_ctr, 19, 0);
+				set_gpio_output_value(gpio_ctr, 26, 0);
+			}
+			else if(green){
+				set_gpio_output_value(gpio_ctr, 13, 0);
+				set_gpio_output_value(gpio_ctr, 19, 1);
+				set_gpio_output_value(gpio_ctr, 26, 0);
+			}
+    	}
+    	else{
+			if(red){
+        		//set_gpio_output_value(gpio_ctr, 13, 0);
+        		//set_gpio_output_value(gpio_ctr, 19, 1);
+        		//set_gpio_output_value(gpio_ctr, 26, 0);
+				red=0;
+				green=1;
+				printf("change to green\n");
+			}	
+			else if(green){
+				//set_gpio_output_value(gpio_ctr, 13, 1);
+				//set_gpio_output_value(gpio_ctr, 19, 0);
+				//set_gpio_output_value(gpio_ctr, 26, 0);
+				green = 0;
+				blue = 1;
+				printf("change to blue\n");
+			}
+			else if(blue){
+				//set_gpio_output_value(gpio_ctr, 13, 0);
+				//set_gpio_output_value(gpio_ctr, 19, 0);
+				//set_gpio_output_value(gpio_ctr, 26, 1);
+				blue = 0;
+				red = 1;
+				printf("change to red\n");
+			}
+    	}
+		usleep(200000);
+	}
 	
 	munmap(gpio_ctr, 4096);
 	close(fdmem);
