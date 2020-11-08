@@ -121,7 +121,15 @@ int main() {
             data[S_WIDTH*y +x]=(1<<y)-1;
         }
     }
+	
+	/*
+	for(int x=0; x<S_WIDTH;x++){
+		for(int y=0; y<S_PAGES; y++){
+			data[S_WIDTH*y + x] = 1;
+		}
 
+	}
+	*/
     update_full(i2c_fd, data);
     free(data);
     close(i2c_fd);
