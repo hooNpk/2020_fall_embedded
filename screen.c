@@ -136,6 +136,32 @@ const unsigned char img [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0
 	0x70, 0x70, 0x70, 0x70, 0x70, 0x70, 0x30, 0x38, 0x38, 0x1C, 0x1E, 0x0F, 0x07, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00};
 
+void update_area_x_wrap(int i2c_fd, const uint8_t* data, int x, int y, int x_len, int y_len) {
+	if(x+x_len <= S_WIDTH) update_area(i2c_fd, data, x, y, x_len, y_len);
+	else{
+		int part1_len = S_WIDTH - x;
+		int part2_len = x_len - part1_len;
+		uint8_t* part1_buf = (uint8_t*)malloc(part1_len * y_len);
+		uint8_t* part2_buf = (uint8_t*)malloc(part2_len * y_len);
+
+		for(int x=0; x<part1_len; x++){
+			for(int y=0; y<y_len; y++){
+				part1_buf[part1_len*y+x] = data[x_len*y+x];
+			}
+		}
+		for(int x=0; x<part2_len; x++){
+			for(int y=0; y<y_len; y++){
+				part2_buf[part2_len*y+x] = data[x_len*y+part1_len+x];
+			}
+		}
+		update_area(i2c_fd, part1_buf, x, y, part1_len, y_len);
+		update_area(i2c_fd, part2_buf, 0, y, part2_len, y_len);
+
+		free(part1_buf);
+		free(part2_buf);
+	}
+}
+
 int main() {
     int i2c_fd = open("/dev/i2c-1", O_RDWR);
 
@@ -171,7 +197,8 @@ int main() {
     update_full(i2c_fd, data);
     free(data);
     write_str(i2c_fd, "Hello Embedded!", 10, S_PAGES-1);
-
+	
+    
     uint8_t *data3 = (uint8_t*)malloc(S_WIDTH*S_PAGES*NUM_FRAMES*5);
 
     for(int i=0; i<NUM_FRAMES; i++) {
@@ -182,10 +209,22 @@ int main() {
 		    }
 	    }
     }
+    
+
+    uint8_t* data_s = (uint8_t*)malloc((LOGO_WIDTH+LOGO_MOVE)*LOGO_HEIGHT);
+    for(int y=0; y<LOGO_HEIGHT; y++){
+	for(int x=0; x<LOGO_MOVE; x++){
+		data_s[(LOGO_WIDTH + LOGO_MOVE) * y + x] = 0x0;
+	}
+	for(int x=0; x<LOGO_WIDTH; x++){
+		data_s[(LOGO_WIDTH + LOGO_MOVE)*y + (x+LOGO_MOVE)] = img[LOGO_WIDTH*y+x];
+	}
+    }
 
     while(1) {
 	    for(int i=0; i<NUM_FRAMES; i++) {
-		    update_full(i2c_fd, &data3[S_WIDTH*S_PAGES*i]);
+		    //update_full(i2c_fd, &data3[S_WIDTH*S_PAGES*i]);
+		    update_area_x_wrap(i2c_fd, data_s, i*LOGO_MOVE, LOGO_Y_LOC, LOGO_WIDTH+LOGO_MOVE, LOGO_HEIGHT);
 	    }
     }
 
