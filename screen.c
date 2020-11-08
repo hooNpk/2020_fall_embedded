@@ -14,6 +14,11 @@
 #define SSD1306_I2C_DEV 0x3C
 #define FONT_WIDTH 6
 #define FONT_HEIGHT 1
+#define LOGO_WIDTH 51
+#define LOGO_HEIGHT 3
+#define LOGO_MOVE 4
+#define NUM_FRAMES (S_WIDTH/LOGO_MOVE)
+#define LOGO_Y_LOC 1
 
 /** void ssd1306_Init(int i2c_fd); */
 // void ssd1306_command(int i2c_fd, uint8_tcmd);
@@ -114,7 +119,7 @@ void write_str(int i2c_fd, char* str, int x, int y) {
 	}
 }
 
-const uint_8 img =
+const unsigned char img[] =
 {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, //                                                                    #
 	0x00, 0x01, 0x10, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, //                #   #                               # #              
@@ -170,6 +175,27 @@ int main() {
     update_full(i2c_fd, data);
     free(data);
     write_str(i2c_fd, "Hello Embedded!", 10, S_PAGES-1);
+
+    uint8_t *data3 = (uint8_t*)malloc(S_WIDTH*S_PAGES*NUM_FRAMES*5);
+
+    for(int i=0; i<NUM_FRAMES; i++) {
+	    for(int x=0; x<LOGO_WIDTH; x++) {
+		    for(int y=0; y<LOGO_HEIGHT; y++) {
+			    int target_x = (i*LOGO_MOVE + x) % S_WIDTH;
+			    data3[S_WIDTH*S_PAGES*i + S_WIDTH*(y+LOGO_Y_LOC)+ target_x] = img[LOGO_WIDTH*y+x];
+		    }
+	    }
+    }
+
+    while(1) {
+	    for(int i=0; i<NUM_FRAMES; i++) {
+		    update_full(i2c_fd, &data3[S_WIDTH*S_PAGES*i]);
+	    }
+    }
+
+    free(data);
+    free(data2);
+    free(data3);
     close(i2c_fd);
     return 0;
 }
