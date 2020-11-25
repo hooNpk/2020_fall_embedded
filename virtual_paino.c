@@ -292,9 +292,7 @@ int main() {
 	set_gpio_input(gpio_ctr, 4);
 	set_gpio_pullup(gpio_ctr, 4);
 
-	int gpio_4_value;
-	get_gpio_input_value(gpio_ctr, 4, &gpio_4_value);
-
+	int gpio_4_value = 0;
 	int gpio_flag = 0;
 
 	while(1) {
@@ -340,6 +338,7 @@ int main() {
 
 		i++;
 
+		get_gpio_input_value(gpio_ctr, 4, &gpio_4_value);
 		if (gpio_4_value && gpio_flag == 0) {
 			set_gpio_output_value(gpio_ctr, 13, 1);
 			set_gpio_output_value(gpio_ctr, 19, 0);
