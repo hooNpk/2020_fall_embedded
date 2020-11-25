@@ -5,6 +5,9 @@
 #include <termio.h>
 #include <signal.h>
 #include <sys/poll.h>
+#include <stdint.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 
 int get_input(int is_echo) {
 	int ch;
@@ -197,7 +200,7 @@ void set_gpio_output_value(void *gpio_ctr, int gpio_nr, int value) {
 
 void set_gpio_output(void *gpio_ctr, int gpio_nr) {
 	int reg_id = gpio_nr / 10;
-	int pos = gpio_ctr % 10;
+	int pos = gpio_nr % 10;
 
 	uint32_t* fsel_reg = (uint32_t*)(gpio_ctr + 0x4 * reg_id);
 	uint32_t fsel_val = *fsel_reg;
@@ -263,7 +266,7 @@ int main() {
 		return -1;
 	}
 
-	void* gpio_ctr = mmap(0, 4096, PROT_READ + PROT_WRTIE, MAP_SHARED, fdmem, GPIO_BASE);
+	void* gpio_ctr = mmap(0, 4096, PROT_READ + PROT_WRITE, MAP_SHARED, fdmem, GPIO_BASE);
 	if (gpio_ctr == MAP_FAILED) {
 		printf("mmap error\n");
 		return -1;
