@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -54,4 +55,14 @@ int main() {
 	thr_id = pthread_create(&p_thread[0], NULL, t_function, (void *)p1);
 
 	return 0;
+=======
+#include <stdlib.h>
+#include <stdio.h>
+
+int main() {
+	system("mpg321 sound/Piano_C4_30.mp3");
+	printf("play\n");
+
+	return 1;
+>>>>>>> Stashed changes
 }
