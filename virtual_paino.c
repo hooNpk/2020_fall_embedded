@@ -311,7 +311,7 @@ void* play_background_metronome(void *data) {
 void* play_background(void *data) {
 	pid_t pid;
 	pthread_t tid, pthread;
-	int thr_id;
+	int thr_id = 0;
 	char p0[] = "Background Drum Thread";
 	char p1[] = "Background Djembe Thread";
 	char p2[] = "Background Metronome Thread";
@@ -325,36 +325,35 @@ void* play_background(void *data) {
 
 	int which = 0;
 
-	if(wiringPiSetup() == -1) {
-		printf("wiringPi Setup error\n");
-		exit(-1);
-	}
-
-	pinMode(BUTTON, INPUT);
 	while(1) {
+		usleep(500000);
+		//printf("%d\n", which);
 		if(digitalRead(BUTTON) != HIGH) {
 		}
 
 		else {
 			if(which == 0) { // play drum
+				printf("***\n");
 				thr_id = pthread_create(&pthread, NULL, play_background_drum, (void *)p0);
 				which++;
 			}
 
 			else if(which == 1) { // play djembe
-				pthread_kill(thr_id, 0);
+				printf("###%d\n", thr_id);
+				pthread_kill(pthread, 0);
+				printf("$$$\n");
 				thr_id = pthread_create(&pthread, NULL, play_background_djembe, (void *)p1);
 				which++;
 			}
 
 			else if(which == 2) { // play metronome
-				pthread_kill(thr_id, 0);
+				pthread_kill(pthread, 0);
 				thr_id = pthread_create(&pthread, NULL, play_background_metronome, (void *)p2);
 				which++;
 			}
 
 			else if(which == 3) { // background terminate
-				pthread_kill(thr_id, 0);
+				pthread_kill(pthread, 0);
 				which = 0;
 			}
 		}
@@ -389,6 +388,7 @@ void* play_background2(void *data) {
 	pthread_t background_thr_id;
 
 	while(1) {
+		sleep(0.3);
 		if(digitalRead(BUTTON) != HIGH) {
 		}
 
@@ -457,14 +457,15 @@ void* change_instrument(void *data) {
 	pid_t pid;
 	pthread_t tid;
 
-	if(wiringPiSetup() == -1) {
-		printf("wiringPi Setup error\n");
-		exit(-1);
-	}
+	pid = getpid();
+	tid = pthread_self();
 
-	pinMode(BUTTON2, INPUT);
-	
+	pthread_detach(tid);
+	char* thread_name = (char*)data;
+	printf("Thread : %s\n", thread_name);
+
 	while(1) {
+		//printf("inst num : %d\n",inst_num);
 		if(digitalRead(BUTTON2) != HIGH) {
 		}
 
@@ -477,6 +478,7 @@ void* change_instrument(void *data) {
 				inst_num++;
 			}
 		}
+		usleep(500000);
 	}
 }
 
@@ -495,6 +497,14 @@ int main() {
 		printf("mmap error\n");
 		return -1;
 	}
+
+	if(wiringPiSetup() == -1) {
+		printf("wiringPi Setup error\n");
+		exit(-1);
+	}
+
+	pinMode(BUTTON, INPUT);
+	pinMode(BUTTON2, INPUT);
 
 	pthread_t p_thread[7];
 	pthread_t p_thread_background;
@@ -523,8 +533,8 @@ int main() {
 	int gpio_4_value = 0;
 	int gpio_flag = 0;
 
-	thr_id = pthread_create(&p_thread_background, NULL, play_background, (void *)pb);
-	thr_id = pthread_create(&p_thread_change, NULL, change_instrument, (void *)pc);
+	//thr_id = pthread_create(&p_thread_background, NULL, play_background, (void *)pb);
+	//thr_id = pthread_create(&p_thread_change, NULL, change_instrument, (void *)pc);
 
 	while(1) {
 		int i = 0;
