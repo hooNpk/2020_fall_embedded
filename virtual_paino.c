@@ -16,24 +16,7 @@
 
 #include "record/record.c"
 
-char v0[] = "mpg321 -q sound/Violin_C4_0.5.mp3";
-char v1[] = "mpg321 -q sound/Violin_D4_0.5.mp3";
-char v2[] = "mpg321 -q sound/Violin_E4_0.5.mp3";
-char v3[] = "mpg321 -q sound/Violin_F4_0.5.mp3";
-char v4[] = "mpg321 -q sound/Violin_G4_0.5.mp3";
-char v5[] = "mpg321 -q sound/Violin_A4_0.5.mp3";
-char v6[] = "mpg321 -q sound/Violin_B4_0.5.mp3";
-char v7[] = "mpg321 -q sound/Violin_C5_0.5.mp3";
-
-char t0[] = "mpg321 -q sound/Trumpet_C4_0.5.mp3";
-char t1[] = "mpg321 -q sound/Trumpet_D4_0.5.mp3";
-char t2[] = "mpg321 -q sound/Trumpet_E4_0.5.mp3";
-char t3[] = "mpg321 -q sound/Trumpet_F4_0.5.mp3";
-char t4[] = "mpg321 -q sound/Trumpet_G4_0.5.mp3";
-char t5[] = "mpg321 -q sound/Trumpet_A4_0.5.mp3";
-char t6[] = "mpg321 -q sound/Trumpet_B4_0.5.mp3";
-char t7[] = "mpg321 -q sound/Trumpet_C5_0.5.mp3";
-
+bool RECORD_START = false;
 int inst_num = 0;
 
 void set_gpio_output_value(void *gpio_ctr, int gpio_nr, int value) {
@@ -254,7 +237,8 @@ void* record_waiting(void* data) {
 			}
 
 			else {
-				thr_id = pthread_create(&pthread, NULL, record, (void *)p0);
+				RECORD_START = !RECORD_START;
+				//thr_id = pthread_create(&pthread, NULL, record, (void *)p0);
 			}
 	}
 }
@@ -278,7 +262,7 @@ void* record_play_waiting(void* data) {
 			}
 
 			else {
-				thr_id = pthread_create(&pthread, NULL, record_play, (void *)p0);
+				thr_id = pthread_create(&pthread, NULL, record_play, (void *)inst_num);
 			}
 	}
 }
@@ -287,6 +271,18 @@ int main() {
 	#define PERIPHERAL_BASE 0x3F000000UL
 	#define GPIO_BASE (PERIPHERAL_BASE + 0x200000)
 
+	long diff_sec, diff_usec;
+	FILE* fp = fopen("vector.txt", "w");
+	struct timeval start, cur;
+	float diff;
+	bool keyboard_vector[8] = {0};
+
+	if(RECORD_START){
+		
+		printf("Press Button one more time to end the recording\n");
+		gettimeofday(&start, NULL);
+		frpintf(fp, "0 0 0 0 0 0 0 0 ");
+	}
 	//int fdmem = open("/dev/mem", O_RDWR);
 	//if (fdmem < 0) {
 	//	printf("Error opening /dev/mem\n");
@@ -309,7 +305,7 @@ int main() {
 	pinMode(BUTTON_RECORD, INPUT);
 	pinMode(BUTTON_RECORD_PLAY, INPUT);
 
-	pthread_t p_thread[7];
+	pthread_t p_thread[8];
 	pthread_t p_thread_background;
 	pthread_t p_thread_change;
 	int thr_id;
@@ -336,12 +332,25 @@ int main() {
 	thr_id = pthread_create(&p_thread_change, NULL, record_play_waiting, (void *)prp);	
 
 	while(1) {
-		int i = 0;
-		/*
+		int i = 0, j=0;
+		
 		char key = get_input(1);
 		printf("%c\n", key);
 		printf("inst num : %d\n", inst_num);
 		
+		if(RECORD_START){
+			for(j=0; j<8; j++){
+				keyboard_vector[j]=0;
+			}
+			gettimeofday(&cur, NULL);
+			diff_sec = cur.tv_sec - start.tv_sec;
+			diff_usec = cur.tv_usec - start.tv_usec;
+			diff = diff_usec/1000000.0f + diff_sec;
+			fprintf(fp, "%.3f\n", diff);
+			start=cur;
+		}
+
+
 		if(inst_num == 0) { // piano sound
 
 			//set_gpio_output_value(gpio_ctr, 13, 1);
@@ -354,34 +363,42 @@ int main() {
 
 			else if (key == 'a') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p0);
+				keyboard_vector[0] = 1;
 			}
 
 			else if (key == 's') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p1);
+				keyboard_vector[1] = 1;
 			}
 
 			else if (key == 'd') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p2);
+				keyboard_vector[2]=1;
 			}
 
 			else if (key == 'f') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p3);
+				keyboard_vector[3]=1;
 			}
 
 			else if (key == 'j') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p4);
+				keyboard_vector[4] =1;
 			}
 
 			else if (key == 'k') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p5);
+				keyboard_vector[5]=1;
 			}
 
 			else if (key == 'l') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p6);
+				keyboard_vector[6] = 1;
 			}
 
 			else if (key == ';') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p7);
+				keyboard_vector[7]=1;
 			}
 
 			i++;
@@ -476,7 +493,12 @@ int main() {
 
 			i++;
 		} // third sound end
-		*/
+		
+		if(RECORD_START){
+			fprintf(fp, "%d %d %d %d %d %d %d %d ", keyboard_vector[0], keyboard_vector[1],
+					keyboard_vector[2], keyboard_vector[3], keyboard_vector[4],
+					keyboard_vector[5], keyboard_vector[6], keyboard_vector[7]);
+		}
 	}
 
 	return 0;
