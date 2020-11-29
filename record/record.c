@@ -62,12 +62,13 @@ void* record_play(void* data){//저장된 벡터를 기반으로 음악 플레�
 
 	fgets(line, sizeof(line), fp);
 	strncpy(time, line+16, 7);
+	printf("time : %s\n", time);
 	time[7] = 0;
 	diff = atof(time);
 	usleep(diff*1000000);
 	printf("sleep time : %f\n", diff);
 
-	inst_number = data;
+	inst_number = (int)data;
 	printf("Instrument Number : %d\n", inst_number);
 
 	while(fgets(line, sizeof(line), fp) != NULL){

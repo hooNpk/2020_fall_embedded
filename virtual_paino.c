@@ -18,6 +18,8 @@
 
 bool RECORD_START = false;
 int inst_num = 0;
+struct timeval start, cur;
+FILE* fp;				
 
 void set_gpio_output_value(void *gpio_ctr, int gpio_nr, int value) {
 	int reg_id = gpio_nr / 32;
@@ -239,6 +241,16 @@ void* record_waiting(void* data) {
 			else {
 				RECORD_START = !RECORD_START;
 				//thr_id = pthread_create(&pthread, NULL, record, (void *)p0);
+
+				if(RECORD_START){
+					printf("RECORDING START!\n");
+					gettimeofday(&start, NULL);
+					fprintf(fp, "0 0 0 0 0 0 0 0 ");
+				}
+				else{
+					printf("RECORDING END!\n");
+					fclose(fp);
+				}
 			}
 	}
 }
@@ -272,17 +284,10 @@ int main() {
 	#define GPIO_BASE (PERIPHERAL_BASE + 0x200000)
 
 	long diff_sec, diff_usec;
-	FILE* fp = fopen("vector.txt", "w");
-	struct timeval start, cur;
 	float diff;
 	bool keyboard_vector[8] = {0};
+	fp = fopen("vector.txt", "w");
 
-	if(RECORD_START){
-		
-		printf("Press Button one more time to end the recording\n");
-		gettimeofday(&start, NULL);
-		frpintf(fp, "0 0 0 0 0 0 0 0 ");
-	}
 	//int fdmem = open("/dev/mem", O_RDWR);
 	//if (fdmem < 0) {
 	//	printf("Error opening /dev/mem\n");
@@ -416,34 +421,42 @@ int main() {
 
 			else if (key == 'a') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v0);
+				keyboard_vector[0] = 1;
 			}
 
 			else if (key == 's') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v1);
+				keyboard_vector[1] = 1;
 			}
 
 			else if (key == 'd') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v2);
+				keyboard_vector[2]=1;
 			}
 
 			else if (key == 'f') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v3);
+				keyboard_vector[3] = 1;
 			}
 
 			else if (key == 'j') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v4);
+				keyboard_vector[4]=1;
 			}
 
 			else if (key == 'k') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v5);
+				keyboard_vector[5]=1;
 			}
 
 			else if (key == 'l') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v6);
+				keyboard_vector[6] =1;
 			}
 
 			else if (key == ';') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v7);
+				keyboard_vector[7] =1;
 			}
 
 			i++;
@@ -461,34 +474,42 @@ int main() {
 
 			else if (key == 'a') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t0);
+				keyboard_vector[0]=1;
 			}
 
 			else if (key == 's') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t1);
+				keyboard_vector[1]=1;
 			}
 
 			else if (key == 'd') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t2);
+				keyboard_vector[2]=1;
 			}
 
 			else if (key == 'f') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t3);
+				keyboard_vector[3]=1;
 			}
 
 			else if (key == 'j') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t4);
+				keyboard_vector[4]=1;
 			}
 
 			else if (key == 'k') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t5);
+				keyboard_vector[5]=1;
 			}
 
 			else if (key == 'l') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t6);
+				keyboard_vector[6]=1;
 			}
 
 			else if (key == ';') {
 				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t7);
+				keyboard_vector[7]=1;
 			}
 
 			i++;
