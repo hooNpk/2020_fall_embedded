@@ -127,10 +127,6 @@ void record() {
 
 	while(1) {
 		
-		if(0/*특정 버튼이 떨어졌다면 */){
-			break;
-		}
-		
 		//initialize
 		for(i=0; i<8; i++){
 			keyboard_vector[i] = false;
@@ -189,17 +185,22 @@ void record() {
 	return ;
 }
 
-int main(){
+
+/*
+int main(){	
 	
-	
-	if(1/* 특정 버튼이 눌린다면 */){
+	if(1// 특정 버튼이 눌린다면
+			){
 		record();
 	}
 	
 
-	if(1/* 특정 버튼이 눌린다면 */){
+	if(1//특정 버튼이 눌린다면
+			){
 		record_play();
 	}
 
 	return 0;
 }
+
+*/

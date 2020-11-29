@@ -11,39 +11,182 @@
 #include <wiringPi.h>
 #define BUTTON 0 // 17
 #define BUTTON2 2 // 27
-#define BUTTON_RECORD 3 // 22
-#define BUTTON_RECORD_PLAY 4 // 23
-
-#include "record/record.c"
-
-char p0[] = "mpg321 -q sound/Piano_C4_0.5.mp3";
-char p1[] = "mpg321 -q sound/Piano_D4_0.5.mp3";
-char p2[] = "mpg321 -q sound/Piano_E4_0.5.mp3";
-char p3[] = "mpg321 -q sound/Piano_F4_0.5.mp3";
-char p4[] = "mpg321 -q sound/Piano_G4_0.5.mp3";
-char p5[] = "mpg321 -q sound/Piano_A4_0.5.mp3";
-char p6[] = "mpg321 -q sound/Piano_B4_0.5.mp3";
-char p7[] = "mpg321 -q sound/Piano_C5_0.5.mp3";
-
-char v0[] = "mpg321 -q sound/Violin_C4_0.5.mp3";
-char v1[] = "mpg321 -q sound/Violin_D4_0.5.mp3";
-char v2[] = "mpg321 -q sound/Violin_E4_0.5.mp3";
-char v3[] = "mpg321 -q sound/Violin_F4_0.5.mp3";
-char v4[] = "mpg321 -q sound/Violin_G4_0.5.mp3";
-char v5[] = "mpg321 -q sound/Violin_A4_0.5.mp3";
-char v6[] = "mpg321 -q sound/Violin_B4_0.5.mp3";
-char v7[] = "mpg321 -q sound/Violin_C5_0.5.mp3";
-
-char t0[] = "mpg321 -q sound/Trumpet_C4_0.5.mp3";
-char t1[] = "mpg321 -q sound/Trumpet_D4_0.5.mp3";
-char t2[] = "mpg321 -q sound/Trumpet_E4_0.5.mp3";
-char t3[] = "mpg321 -q sound/Trumpet_F4_0.5.mp3";
-char t4[] = "mpg321 -q sound/Trumpet_G4_0.5.mp3";
-char t5[] = "mpg321 -q sound/Trumpet_A4_0.5.mp3";
-char t6[] = "mpg321 -q sound/Trumpet_B4_0.5.mp3";
-char t7[] = "mpg321 -q sound/Trumpet_C5_0.5.mp3";
+#define BUTTON3 3 // 22
+#define BUTTON4 4 // 23
 
 int inst_num = 0;
+
+int get_input(int is_echo) {
+	int ch;
+	struct termios old;
+	struct termios current;
+
+	tcgetattr(0, &old);
+
+	current = old;
+
+	current.c_lflag &= ~ICANON;
+
+	if (is_echo) {
+		current.c_lflag |= ECHO;
+	} else {
+		current.c_lflag &= ~ECHO;
+	}
+
+	tcsetattr(0, TCSANOW, &current);
+	ch = getchar();
+	tcsetattr(0, TCSANOW, &old);
+
+	return ch;
+}
+
+void* play_C(void *data) {
+	pid_t pid;
+	pthread_t tid;
+	/** static int retval = 999; */
+	/** struct pollfd fds[1]; */
+	/** int ret; */
+
+	/** fds[0].fd = STDIN_FILENO; */
+	/** fds[0].events = POLLIN; */
+        /**  */
+	/** fds[1].fd = STDOUT_FILENO; */
+	/** fds[1].events = POLLOUT; */
+
+	pid = getpid();
+	tid = pthread_self();
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+	char buf[1024];
+
+	system("mpg321 sound/Piano_C4_0.5.mp3");
+	printf("Thread : %s\n", thread_name);
+        /**  */
+	/** while(1) { */
+	/**         ret = poll(fds, 2, 500); */
+	/**         ret = poll(fds, 1, 500); */
+        /**  */
+	/**         if(!ret) { */
+	/**                 pthread_exit((void*)&retval); */
+	/**         } */
+        /**  */
+	/**         if(fds[0].revents & POLLIN) { */
+	/**                 int len = read(STDIN_FILENO, buf, 1024); */
+	/**                 if(len) { */
+	/**                         if(*buf != 'a') { */
+	/**                                 break; */
+	/**                         } */
+	/**                 } */
+	/**         } */
+	/** } */
+}
+
+void* play_D(void *data) {
+	pid_t pid;
+	pthread_t tid;
+
+	pid = getpid();
+	tid = pthread_self();
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+
+	system("mpg321 sound/Piano_D4_0.5.mp3");
+	printf("Thread : %s\n", thread_name);
+}
+
+void* play_E(void *data) {
+	pid_t pid;
+	pthread_t tid;
+
+	pid = getpid();
+	tid = pthread_self();
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+
+	system("mpg321 sound/Piano_E4_0.5.mp3");
+	printf("Thread : %s\n", thread_name);
+}
+
+void* play_F(void *data) {
+	pid_t pid;
+	pthread_t tid;
+
+	pid = getpid();
+	tid = pthread_self();
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+
+	system("mpg321 sound/Piano_F4_0.5.mp3");
+	printf("Thread : %s\n", thread_name);
+}
+
+void* play_G(void *data) {
+	pid_t pid;
+	pthread_t tid;
+
+	pid = getpid();
+	tid = pthread_self();
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+
+	system("mpg321 sound/Piano_G4_0.5.mp3");
+	printf("Thread : %s\n", thread_name);
+}
+
+void* play_A(void *data) {
+	pid_t pid;
+	pthread_t tid;
+
+	pid = getpid();
+	tid = pthread_self();
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+
+	system("mpg321 sound/Piano_A4_0.5.mp3");
+	printf("Thread : %s\n", thread_name);
+}
+
+void* play_B(void *data) {
+	pid_t pid;
+	pthread_t tid;
+
+	pid = getpid();
+	tid = pthread_self();
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+
+	system("mpg321 sound/Piano_B4_0.5.mp3");
+	printf("Thread : %s\n", thread_name);
+}
+
+void* play_C5(void *data) {
+	pid_t pid;
+	pthread_t tid;
+
+	pid = getpid();
+	tid = pthread_self();
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+
+	system("mpg321 sound/Piano_C5_0.5.mp3");
+	printf("Thread : %s\n", thread_name);
+}
 
 void set_gpio_output_value(void *gpio_ctr, int gpio_nr, int value) {
 	int reg_id = gpio_nr / 32;
@@ -215,6 +358,99 @@ void* play_background(void *data) {
 	}
 }
 
+void* play_background2(void *data) {
+	pid_t pid;
+	pthread_t tid;
+	pthread_t pthread;
+	int which = 0;
+	int is_playing = 0;
+	char p[] = "Background Thread";
+
+	pid = getpid();
+	tid = pthread_self();
+	
+	/** char* mypid = malloc(6); */
+	/** sprintf(mypid, "%d", pid); */
+
+	pthread_detach(tid);
+
+	char* thread_name = (char*)data;
+	printf("Thread : %s\n", thread_name);
+
+	if(wiringPiSetup() == -1) {
+		printf("wiringPi setup error\n");
+		exit(-1);
+	}
+
+	pinMode(BUTTON, INPUT);
+	pthread_t background_thr_id;
+
+	while(1) {
+		sleep(0.3);
+		if(digitalRead(BUTTON) != HIGH) {
+		}
+
+		else {
+			if(which == 0) {
+				// play drum
+				if(is_playing == 0) {
+					// play background_drum
+					background_thr_id = pthread_create(&pthread, NULL, play_background_drum, (void *)p);
+					is_playing = 1;
+				}
+
+				else {
+					// kill background
+					/** char* buffer; */
+					/** snprintf(buffer, sizeof(buffer), "kill -SIGINT %s", mypid); */
+					/** system(buffer); */
+
+					pthread_kill(background_thr_id, 0);
+					is_playing = 0;
+					which = 0;
+				}
+			which++;
+			}
+
+			else if(which == 1) {
+				// play djembe
+				if(is_playing == 0) {
+					// play background_djembe
+					background_thr_id = pthread_create(&pthread, NULL, play_background_djembe, (void *)p);
+					is_playing = 1;
+				}
+
+				else {
+					// kill background
+				
+					pthread_kill(background_thr_id, 0);
+					is_playing = 0;
+					which = 0;
+				}
+			which++;
+			}
+
+			else if(which == 2) {
+				// play metronome
+				if(is_playing == 0) {
+					// play background_djembe
+					background_thr_id = pthread_create(&pthread, NULL, play_background_metronome, (void *)p);
+					is_playing = 1;
+				}
+
+				else {
+					// kill background
+				
+					pthread_kill(background_thr_id, 0);
+					is_playing = 0;
+					which = 0;
+				}
+			which = 0;
+			}
+		}
+	}
+}
+
 void* change_instrument(void *data) {
 	pid_t pid;
 	pthread_t tid;
@@ -244,52 +480,6 @@ void* change_instrument(void *data) {
 	}
 }
 
-void* record_waiting(void* data) {
-	pid_t pid;
-	pthread_t tid, pthread;
-	int thr_id = 0;
-
-	char p0[] = "Recording Start!";
-	pid = getpid();
-	tid = pthread_self();
-
-	pthread_detach(tid);
-	char* thread_name = (char*)data;
-	printf("Thread : %s\n", thread_name);
-
-	while(1) {
-			if(digitalRead(BUTTON_RECORD) != HIGH) {
-			}
-
-			else {
-				thr_id = pthread_create(&pthread, NULL, record, (void *)p0);
-			}
-	}
-}
-
-void* record_play_waiting(void* data) {
-	pid_t pid;
-	pthread_t tid, pthread;
-	int thr_id = 0;
-
-	char p0[] = "Record Playing Start!";
-	pid = getpid();
-	tid = pthread_self();
-
-	pthread_detach(tid);
-	char* thread_name = (char*)data;
-	printf("Thread : %s\n", thread_name);
-
-	while(1) {
-			if(digitalRead(BUTTON_RECORD_PLAY) != HIGH) {
-			}
-
-			else {
-				thr_id = pthread_create(&pthread, NULL, record_play, (void *)p0);
-			}
-	}
-}
-
 int main() {
 	#define PERIPHERAL_BASE 0x3F000000UL
 	#define GPIO_BASE (PERIPHERAL_BASE + 0x200000)
@@ -313,8 +503,6 @@ int main() {
 
 	pinMode(BUTTON, INPUT);
 	pinMode(BUTTON2, INPUT);
-	pinMode(BUTTON_RECORD, INPUT);
-	pinMode(BUTTON_RECORD_PLAY, INPUT);
 
 	pthread_t p_thread[7];
 	pthread_t p_thread_background;
@@ -322,10 +510,16 @@ int main() {
 	int thr_id;
 	int status;
 
+	char p0[] = "Thread 0";
+	char p1[] = "Thread 1";
+	char p2[] = "Thread 2";
+	char p3[] = "Thread 3";
+	char p4[] = "Thread 4";
+	char p5[] = "Thread 5";
+	char p6[] = "Thread 6";
+	char p7[] = "Thread 7";
 	char* pb = "Background Music Thread";
 	char* pc = "Change Instrument Thread";
-	char* pr = "Recording Thread";
-	char* prp = "Recording Play Thread";
 
 	//set_gpio_output(gpio_ctr, 13);
 	//set_gpio_output(gpio_ctr, 19);
@@ -338,9 +532,7 @@ int main() {
 	int gpio_flag = 0;
 
 	thr_id = pthread_create(&p_thread_background, NULL, play_background, (void *)pb);
-	thr_id = pthread_create(&p_thread_change, NULL, change_instrument, (void *)pc);	
-	thr_id = pthread_create(&p_thread_change, NULL, record_waiting, (void *)pr);
-	thr_id = pthread_create(&p_thread_change, NULL, record_play_waiting, (void *)prp);	
+	thr_id = pthread_create(&p_thread_change, NULL, change_instrument, (void *)pc);
 
 	while(1) {
 		int i = 0;
@@ -359,35 +551,35 @@ int main() {
 			}
 
 			else if (key == 'a') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p0);
+				thr_id = pthread_create(&p_thread[i], NULL, play_C, (void *)p0);
 			}
 
 			else if (key == 's') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p1);
+				thr_id = pthread_create(&p_thread[i], NULL, play_D, (void *)p1);
 			}
 
 			else if (key == 'd') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p2);
+				thr_id = pthread_create(&p_thread[i], NULL, play_E, (void *)p2);
 			}
 
 			else if (key == 'f') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p3);
+				thr_id = pthread_create(&p_thread[i], NULL, play_F, (void *)p3);
 			}
 
 			else if (key == 'j') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p4);
+				thr_id = pthread_create(&p_thread[i], NULL, play_G, (void *)p4);
 			}
 
 			else if (key == 'k') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p5);
+				thr_id = pthread_create(&p_thread[i], NULL, play_A, (void *)p5);
 			}
 
 			else if (key == 'l') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p6);
+				thr_id = pthread_create(&p_thread[i], NULL, play_B, (void *)p6);
 			}
 
 			else if (key == ';') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)p7);
+				thr_id = pthread_create(&p_thread[i], NULL, play_C5, (void *)p7);
 			}
 
 			i++;
@@ -404,35 +596,35 @@ int main() {
 			}
 
 			else if (key == 'a') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v0);
+				thr_id = pthread_create(&p_thread[i], NULL, play_C, (void *)p0);
 			}
 
 			else if (key == 's') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v1);
+				thr_id = pthread_create(&p_thread[i], NULL, play_D, (void *)p1);
 			}
 
 			else if (key == 'd') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v2);
+				thr_id = pthread_create(&p_thread[i], NULL, play_E, (void *)p2);
 			}
 
 			else if (key == 'f') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v3);
+				thr_id = pthread_create(&p_thread[i], NULL, play_F, (void *)p3);
 			}
 
 			else if (key == 'j') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v4);
+				thr_id = pthread_create(&p_thread[i], NULL, play_G, (void *)p4);
 			}
 
 			else if (key == 'k') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v5);
+				thr_id = pthread_create(&p_thread[i], NULL, play_A, (void *)p5);
 			}
 
 			else if (key == 'l') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v6);
+				thr_id = pthread_create(&p_thread[i], NULL, play_B, (void *)p6);
 			}
 
 			else if (key == ';') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)v7);
+				thr_id = pthread_create(&p_thread[i], NULL, play_C5, (void *)p7);
 			}
 
 			i++;
@@ -449,35 +641,35 @@ int main() {
 			}
 
 			else if (key == 'a') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t0);
+				thr_id = pthread_create(&p_thread[i], NULL, play_C, (void *)p0);
 			}
 
 			else if (key == 's') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t1);
+				thr_id = pthread_create(&p_thread[i], NULL, play_D, (void *)p1);
 			}
 
 			else if (key == 'd') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t2);
+				thr_id = pthread_create(&p_thread[i], NULL, play_E, (void *)p2);
 			}
 
 			else if (key == 'f') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t3);
+				thr_id = pthread_create(&p_thread[i], NULL, play_F, (void *)p3);
 			}
 
 			else if (key == 'j') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t4);
+				thr_id = pthread_create(&p_thread[i], NULL, play_G, (void *)p4);
 			}
 
 			else if (key == 'k') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t5);
+				thr_id = pthread_create(&p_thread[i], NULL, play_A, (void *)p5);
 			}
 
 			else if (key == 'l') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t6);
+				thr_id = pthread_create(&p_thread[i], NULL, play_B, (void *)p6);
 			}
 
 			else if (key == ';') {
-				thr_id = pthread_create(&p_thread[i], NULL, play, (void *)t7);
+				thr_id = pthread_create(&p_thread[i], NULL, play_C5, (void *)p7);
 			}
 
 			i++;
