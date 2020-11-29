@@ -15,7 +15,6 @@
 #define BUTTON4 4 // 23
 
 int inst_num = 0;
-int thread_out = 0;
 
 int get_input(int is_echo) {
 	int ch;
@@ -278,13 +277,6 @@ void* play_background_drum(void *data) {
 
 	system("mpg321 sound/Drum_Loop_62_BPM.mp3");
 	printf("Thread : %s\n", thread_name);
-
-	while(1) {
-		if(thread_out == 1) {
-			pthread_exit((void*)&retval);
-			break;
-		}
-	}
 }
 
 void* play_background_djembe(void *data) {
@@ -347,20 +339,19 @@ void* play_background(void *data) {
 			}
 
 			else if(which == 1) { // play djembe
-				thread_out++;
-				pthread_kill(pthread, SIGKILL);
+				/** pthread_kill(pthread, SIGKILL); */
 				thr_id = pthread_create(&pthread2, NULL, play_background_djembe, (void *)p1);
 				which++;
 			}
 
 			else if(which == 2) { // play metronome
-				pthread_kill(pthread2, SIGKILL);
+				/** pthread_kill(pthread2, SIGKILL); */
 				thr_id = pthread_create(&pthread3, NULL, play_background_metronome, (void *)p2);
 				which++;
 			}
 
 			else if(which == 3) { // background terminate
-				pthread_kill(pthread3, SIGKILL);
+				/** pthread_kill(pthread3, SIGKILL); */
 				which = 0;
 			}
 		}
