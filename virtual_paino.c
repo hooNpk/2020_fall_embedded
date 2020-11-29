@@ -16,15 +16,6 @@
 
 #include "record/record.c"
 
-char p0[] = "mpg321 -q sound/Piano_C4_0.5.mp3";
-char p1[] = "mpg321 -q sound/Piano_D4_0.5.mp3";
-char p2[] = "mpg321 -q sound/Piano_E4_0.5.mp3";
-char p3[] = "mpg321 -q sound/Piano_F4_0.5.mp3";
-char p4[] = "mpg321 -q sound/Piano_G4_0.5.mp3";
-char p5[] = "mpg321 -q sound/Piano_A4_0.5.mp3";
-char p6[] = "mpg321 -q sound/Piano_B4_0.5.mp3";
-char p7[] = "mpg321 -q sound/Piano_C5_0.5.mp3";
-
 char v0[] = "mpg321 -q sound/Violin_C4_0.5.mp3";
 char v1[] = "mpg321 -q sound/Violin_D4_0.5.mp3";
 char v2[] = "mpg321 -q sound/Violin_E4_0.5.mp3";
@@ -258,6 +249,7 @@ void* record_waiting(void* data) {
 	printf("Thread : %s\n", thread_name);
 
 	while(1) {
+		usleep(300000);
 			if(digitalRead(BUTTON_RECORD) != HIGH) {
 			}
 
@@ -281,6 +273,7 @@ void* record_play_waiting(void* data) {
 	printf("Thread : %s\n", thread_name);
 
 	while(1) {
+		usleep(300000);
 			if(digitalRead(BUTTON_RECORD_PLAY) != HIGH) {
 			}
 
@@ -344,6 +337,7 @@ int main() {
 
 	while(1) {
 		int i = 0;
+		/*
 		char key = get_input(1);
 		printf("%c\n", key);
 		printf("inst num : %d\n", inst_num);
@@ -354,7 +348,7 @@ int main() {
 			//set_gpio_output_value(gpio_ctr, 19, 0);
 			//set_gpio_output_value(gpio_ctr, 26, 0);
 
-			if (key == 'q') {
+			if (key == 'w') {
 				break;
 			}
 
@@ -399,7 +393,7 @@ int main() {
 			//set_gpio_output_value(gpio_ctr, 19, 1);
 			//set_gpio_output_value(gpio_ctr, 26, 0);
 
-			if (key == 'q') {
+			if (key == 'w') {
 				break;
 			}
 
@@ -444,7 +438,7 @@ int main() {
 			//set_gpio_output_value(gpio_ctr, 19, 0);
 			//set_gpio_output_value(gpio_ctr, 26, 1);
 
-			if (key == 'q') {
+			if (key == 'w') {
 				break;
 			}
 
@@ -482,6 +476,7 @@ int main() {
 
 			i++;
 		} // third sound end
+		*/
 	}
 
 	return 0;

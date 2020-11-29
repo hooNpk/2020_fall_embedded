@@ -12,14 +12,14 @@
 bool keyboard_vector[8] = {0};
 struct timeval start, cur;
 
-char p0[] = "mpg321 -q ../sound/Piano_C4_0.5.mp3";
-char p1[] = "mpg321 -q ../sound/Piano_D4_0.5.mp3";
-char p2[] = "mpg321 -q ../sound/Piano_E4_0.5.mp3";
-char p3[] = "mpg321 -q ../sound/Piano_F4_0.5.mp3";
-char p4[] = "mpg321 -q ../sound/Piano_G4_0.5.mp3";
-char p5[] = "mpg321 -q ../sound/Piano_A4_0.5.mp3";
-char p6[] = "mpg321 -q ../sound/Piano_B4_0.5.mp3";
-char p7[] = "mpg321 -q ../sound/Piano_C5_0.5.mp3";
+char p0[] = "mpg321 -q sound/Piano_C4_0.5.mp3";
+char p1[] = "mpg321 -q sound/Piano_D4_0.5.mp3";
+char p2[] = "mpg321 -q sound/Piano_E4_0.5.mp3";
+char p3[] = "mpg321 -q sound/Piano_F4_0.5.mp3";
+char p4[] = "mpg321 -q sound/Piano_G4_0.5.mp3";
+char p5[] = "mpg321 -q sound/Piano_A4_0.5.mp3";
+char p6[] = "mpg321 -q sound/Piano_B4_0.5.mp3";
+char p7[] = "mpg321 -q sound/Piano_C5_0.5.mp3";
 
 
 void* play(void* file_dir) {
@@ -37,7 +37,7 @@ void* play(void* file_dir) {
      //printf("Thread : %s\n", thread_name);
  }
 
-void record_play(){//저장된 벡터를 기반으로 음악 플레이
+void* record_play(void* data){//저장된 벡터를 기반으로 음악 플레이
 	FILE* fp = fopen("vector.txt", "r");
 	char line[25];
 	char time[8];
@@ -87,6 +87,7 @@ void record_play(){//저장된 벡터를 기반으로 음악 플레이
 		
 		i++;
 	}
+	printf("Playing End\n");
 
 	fclose(fp);
 }
@@ -113,7 +114,7 @@ int get_input(int is_echo){
 	return ch;
 }
 
-void record() {
+void* record(void* data) {
 	pthread_t p_thread[8];
 	int thr_id;
 	int i =0;
@@ -141,6 +142,7 @@ void record() {
 		start = cur;
 
 		if(key == 'q'){ //quit
+			printf("Recording End\n");
 			break;
 		}
 		else if(key == 'a'){
@@ -182,7 +184,6 @@ void record() {
 	}
 	
 	fclose(fp);
-	return ;
 }
 
 
