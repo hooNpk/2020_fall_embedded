@@ -15,6 +15,7 @@
 #define BUTTON4 4 // 23
 
 int inst_num = 0;
+int thread_out = 0;
 
 int get_input(int is_echo) {
 	int ch;
@@ -264,6 +265,7 @@ void get_gpio_input_value(void *gpio_ctr, int gpio_nr, int *value) {
 }
 
 void* play_background_drum(void *data) {
+	static int retval = 999;
 	pid_t pid;
 	pthread_t tid;
 
@@ -276,6 +278,13 @@ void* play_background_drum(void *data) {
 
 	system("mpg321 sound/Drum_Loop_62_BPM.mp3");
 	printf("Thread : %s\n", thread_name);
+
+	while(1) {
+		if(thread_out == 1) {
+			pthread_exit((void*)&retval);
+			break;
+		}
+	}
 }
 
 void* play_background_djembe(void *data) {
@@ -310,7 +319,7 @@ void* play_background_metronome(void *data) {
 
 void* play_background(void *data) {
 	pid_t pid;
-	pthread_t tid, pthread;
+	pthread_t tid, pthread, pthread2, pthread3;
 	int thr_id = 0;
 	char p0[] = "Background Drum Thread";
 	char p1[] = "Background Djembe Thread";
@@ -333,27 +342,25 @@ void* play_background(void *data) {
 
 		else {
 			if(which == 0) { // play drum
-				printf("***\n");
 				thr_id = pthread_create(&pthread, NULL, play_background_drum, (void *)p0);
 				which++;
 			}
 
 			else if(which == 1) { // play djembe
-				printf("###%d\n", thr_id);
-				pthread_kill(pthread, 0);
-				printf("$$$\n");
-				thr_id = pthread_create(&pthread, NULL, play_background_djembe, (void *)p1);
+				thread_out++;
+				pthread_kill(pthread, SIGKILL);
+				thr_id = pthread_create(&pthread2, NULL, play_background_djembe, (void *)p1);
 				which++;
 			}
 
 			else if(which == 2) { // play metronome
-				pthread_kill(pthread, 0);
-				thr_id = pthread_create(&pthread, NULL, play_background_metronome, (void *)p2);
+				pthread_kill(pthread2, SIGKILL);
+				thr_id = pthread_create(&pthread3, NULL, play_background_metronome, (void *)p2);
 				which++;
 			}
 
 			else if(which == 3) { // background terminate
-				pthread_kill(pthread, 0);
+				pthread_kill(pthread3, SIGKILL);
 				which = 0;
 			}
 		}
@@ -486,17 +493,17 @@ int main() {
 	#define PERIPHERAL_BASE 0x3F000000UL
 	#define GPIO_BASE (PERIPHERAL_BASE + 0x200000)
 
-	int fdmem = open("/dev/mem", O_RDWR);
-	if (fdmem < 0) {
-		printf("Error opening /dev/mem\n");
-		return -1;
-	}
+	//int fdmem = open("/dev/mem", O_RDWR);
+	//if (fdmem < 0) {
+	//	printf("Error opening /dev/mem\n");
+	//	return -1;
+	//}
 
-	void* gpio_ctr = mmap(0, 4096, PROT_READ + PROT_WRITE, MAP_SHARED, fdmem, GPIO_BASE);
-	if (gpio_ctr == MAP_FAILED) {
-		printf("mmap error\n");
-		return -1;
-	}
+	//void* gpio_ctr = mmap(0, 4096, PROT_READ + PROT_WRITE, MAP_SHARED, fdmem, GPIO_BASE);
+	//if (gpio_ctr == MAP_FAILED) {
+	//	printf("mmap error\n");
+	//	return -1;
+	//}
 
 	if(wiringPiSetup() == -1) {
 		printf("wiringPi Setup error\n");
@@ -523,18 +530,18 @@ int main() {
 	char* pb = "Background Music Thread";
 	char* pc = "Change Instrument Thread";
 
-	set_gpio_output(gpio_ctr, 13);
-	set_gpio_output(gpio_ctr, 19);
-	set_gpio_output(gpio_ctr, 26);
+	//set_gpio_output(gpio_ctr, 13);
+	//set_gpio_output(gpio_ctr, 19);
+	//set_gpio_output(gpio_ctr, 26);
 
-	set_gpio_input(gpio_ctr, 4);
-	set_gpio_pullup(gpio_ctr, 4);
+	//set_gpio_input(gpio_ctr, 4);
+	//set_gpio_pullup(gpio_ctr, 4);
 
 	int gpio_4_value = 0;
 	int gpio_flag = 0;
 
-	//thr_id = pthread_create(&p_thread_background, NULL, play_background, (void *)pb);
-	//thr_id = pthread_create(&p_thread_change, NULL, change_instrument, (void *)pc);
+	thr_id = pthread_create(&p_thread_background, NULL, play_background, (void *)pb);
+	thr_id = pthread_create(&p_thread_change, NULL, change_instrument, (void *)pc);
 
 	while(1) {
 		int i = 0;
@@ -544,9 +551,9 @@ int main() {
 		
 		if(inst_num == 0) { // piano sound
 
-			set_gpio_output_value(gpio_ctr, 13, 1);
-			set_gpio_output_value(gpio_ctr, 19, 0);
-			set_gpio_output_value(gpio_ctr, 26, 0);
+			//set_gpio_output_value(gpio_ctr, 13, 1);
+			//set_gpio_output_value(gpio_ctr, 19, 0);
+			//set_gpio_output_value(gpio_ctr, 26, 0);
 
 			if (key == 'q') {
 				break;
@@ -589,9 +596,9 @@ int main() {
 
 		else if(inst_num == 1) { // second sound
 
-			set_gpio_output_value(gpio_ctr, 13, 0);
-			set_gpio_output_value(gpio_ctr, 19, 1);
-			set_gpio_output_value(gpio_ctr, 26, 0);
+			//set_gpio_output_value(gpio_ctr, 13, 0);
+			//set_gpio_output_value(gpio_ctr, 19, 1);
+			//set_gpio_output_value(gpio_ctr, 26, 0);
 
 			if (key == 'q') {
 				break;
@@ -634,9 +641,9 @@ int main() {
 
 		else if(inst_num == 2) { // third sound
 
-			set_gpio_output_value(gpio_ctr, 13, 0);
-			set_gpio_output_value(gpio_ctr, 19, 0);
-			set_gpio_output_value(gpio_ctr, 26, 1);
+			//set_gpio_output_value(gpio_ctr, 13, 0);
+			//set_gpio_output_value(gpio_ctr, 19, 0);
+			//set_gpio_output_value(gpio_ctr, 26, 1);
 
 			if (key == 'q') {
 				break;
