@@ -540,6 +540,7 @@ int main() {
 		int i = 0;
 		char key = get_input(1);
 		printf("%c\n", key);
+		printf("inst num : %d\n", inst_num);
 		
 		if(inst_num == 0) { // piano sound
 
@@ -586,7 +587,7 @@ int main() {
 			i++;
 		} // piano sound end
 
-		if(inst_num == 1) { // second sound
+		else if(inst_num == 1) { // second sound
 
 			set_gpio_output_value(gpio_ctr, 13, 0);
 			set_gpio_output_value(gpio_ctr, 19, 1);
@@ -631,7 +632,7 @@ int main() {
 			i++;
 		} // second sound end
 
-		if(inst_num == 2) { // third sound
+		else if(inst_num == 2) { // third sound
 
 			set_gpio_output_value(gpio_ctr, 13, 0);
 			set_gpio_output_value(gpio_ctr, 19, 0);
