@@ -9,9 +9,18 @@
 #include <string.h>
 #include <sys/time.h>
 
-char scale_list[8] = {'a', 's', 'd', 'f', 'j', 'k', 'l', ';'};
 bool keyboard_vector[8] = {0};
 struct timeval start, cur;
+
+char p0[] = "mpg321 -q ../sound/Piano_C4_0.5.mp3";
+char p1[] = "mpg321 -q ../sound/Piano_D4_0.5.mp3";
+char p2[] = "mpg321 -q ../sound/Piano_E4_0.5.mp3";
+char p3[] = "mpg321 -q ../sound/Piano_F4_0.5.mp3";
+char p4[] = "mpg321 -q ../sound/Piano_G4_0.5.mp3";
+char p5[] = "mpg321 -q ../sound/Piano_A4_0.5.mp3";
+char p6[] = "mpg321 -q ../sound/Piano_B4_0.5.mp3";
+char p7[] = "mpg321 -q ../sound/Piano_C5_0.5.mp3";
+
 
 void* play(void* file_dir) {
      pid_t pid;
@@ -21,7 +30,8 @@ void* play(void* file_dir) {
      tid = pthread_self();
 
      pthread_detach(tid);
-
+	
+	 //printf("%s\n", (char*)file_dir);
 	 system((char*)file_dir);
      //system("mpg321 sound/Piano_B4_0.5.mp3");
      //printf("Thread : %s\n", thread_name);
@@ -32,25 +42,18 @@ void record_play(){//저장된 벡터를 기반으로 음악 플레이
 	char line[25];
 	char time[8];
 	float diff;
-	pthread_t p_thread[8];
+	pthread_t p_thread[20];
 	int thr_id, i=0;
 
-    char p0[] = "mpg321 ../sound/Piano_C4_0.5.mp3";
-    char p1[] = "mpg321 ../sound/Piano_D4_0.5.mp3";
-    char p2[] = "mpg321 ../sound/Piano_E4_0.5.mp3";
-    char p3[] = "mpg321 ../sound/Piano_F4_0.5.mp3";
-    char p4[] = "mpg321 ../sound/Piano_G4_0.5.mp3";
-    char p5[] = "mpg321 ../sound/Piano_A4_0.5.mp3";
-    char p6[] = "mpg321 ../sound/Piano_B4_0.5.mp3";
-    char p7[] = "mpg321 ../sound/Pinao_C5_0.5.mp3";
+	fgets(line, sizeof(line), fp);
+	strncpy(time, line+16, 7);
+	time[7] = 0;
+	diff = atof(time);
+	usleep(diff*1000000);
+	printf("sleep time : %f\n", diff);
 
 	while(fgets(line, sizeof(line), fp) != NULL){
 		
-		strncpy(time, line+16, 7);
-		time[7]=0;
-		diff = atof(time);
-		usleep(diff*1000000);
-
 		if(line[0]=='1'){//'a'
 			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p0);
 		}
@@ -75,6 +78,13 @@ void record_play(){//저장된 벡터를 기반으로 음악 플레이
 		else if(line[14]=='1'){//';'
 			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p7);
 		}
+
+		strncpy(time, line+16, 7);
+		time[7] = 0;
+		diff = atof(time);
+		printf("sleep time : %f\n", diff);
+		usleep(diff*1000000);
+		
 		i++;
 	}
 
@@ -104,14 +114,13 @@ int get_input(int is_echo){
 }
 
 void record() {
-	pthread_t p_thread[7];
+	pthread_t p_thread[8];
 	int thr_id;
 	int i =0;
 	long diff_sec, diff_usec;
 	FILE* fp = fopen("vector.txt", "w");
 	struct timeval start, cur;
 	float diff;
-	
 	printf("Press 'q' to end the recording\n");
 	gettimeofday(&start, NULL);
 	fprintf(fp, "0 0 0 0 0 0 0 0 ");
@@ -139,30 +148,38 @@ void record() {
 			break;
 		}
 		else if(key == 'a'){
+			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p0);
 			keyboard_vector[0] = 1;
 		}
 		else if(key == 's'){
+			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p1);
 			keyboard_vector[1] = 1;
 		}
 		else if(key =='d'){
+			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p2);
 			keyboard_vector[2] = 1;
 		}
 		else if(key == 'f'){
+			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p3);
 			keyboard_vector[3] = 1;
 		}
 		else if(key == 'j'){
 			keyboard_vector[4] = 1;
+			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p4);
 		}
 		else if(key == 'k'){
 			keyboard_vector[5] = 1;
+			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p5);
 		}
 		else if(key == 'l'){
 			keyboard_vector[6] = 1;
+			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p6);
 		}
 		else if(key == ';'){
 			keyboard_vector[7] = 1;
+			thr_id = pthread_create(&p_thread[i], NULL, play, (void*)p7);
 		}
-
+		i++;
 		fprintf(fp, "%d %d %d %d %d %d %d %d ", keyboard_vector[0], keyboard_vector[1],
 				keyboard_vector[2], keyboard_vector[3], keyboard_vector[4], keyboard_vector[5],
 				keyboard_vector[6], keyboard_vector[7]);
